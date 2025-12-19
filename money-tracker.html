@@ -3,8 +3,8 @@ import { PlusCircle, TrendingUp, TrendingDown, Wallet, CreditCard, Calendar, Set
 
 const MoneyTracker = () => {
   // Default categories and payment methods
-  const defaultCategories = ['🍽️ Food', '🛍️ Shopping', '🚇 Transportation', '⛽ Gasoline', '📱 Phone', '💳 Charge', '📦 Others'];
-  const defaultPaymentMethods = ['💵 Cash/QR', '💳 Credit Card', '♦️ TrueMoney', '🐰 Rabbit Card'];
+  const defaultCategories = ['🍔 Food', '🛍️ Shopping', '🚇 Transportation', '⛽ Gasoline', '📱 Phone', '💳 Charge', '📦 Others'];
+  const defaultPaymentMethods = ['💵 Cash/QR', '💳 Credit Card', '🐰 TrueMoney', '🐰 Rabbit Card'];
   
   // State management
   const [transactions, setTransactions] = useState([]);
@@ -18,7 +18,7 @@ const MoneyTracker = () => {
   const [formData, setFormData] = useState({
     type: 'expense',
     amount: '',
-    category: '🍽️ Food',
+    category: '🍔 Food',
     paymentMethod: '💵 Cash/QR',
     date: new Date().toISOString().split('T')[0],
     note: ''
