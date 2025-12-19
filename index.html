@@ -5,120 +5,221 @@
   <title>Money Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-  <!-- Babel (allows JSX in browser) -->
+  <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 
-<body class="bg-gray-100">
-  <div id="root"></div>
+<body class="bg-slate-100">
+<div id="root"></div>
 
-  <script type="text/babel">
+<script type="text/babel">
+const { useState, useEffect } = React;
 
-    const { useState, useEffect } = React;
+/* ------------------ CONFIG ------------------ */
+const DEFAULT_CATEGORIES = [
+  "🍽️ Food", "🛍️ Shopping", "🚇 Transportation",
+  "⛽ Gasoline", "📱 Phone", "💳 Charge", "📦 Others"
+];
 
-    function MoneyTracker() {
-      const [transactions, setTransactions] = useState([]);
-      const [budget, setBudget] = useState(0);
+const DEFAULT_METHODS = [
+  "💵 Cash/QR", "💳 Credit Card", "♦️ TrueMoney", "🐰 Rabbit Card"
+];
 
-      const [form, setForm] = useState({
-        amount: '',
-        note: '',
-        date: new Date().toISOString().split('T')[0]
-      });
+/* ------------------ HELPERS ------------------ */
+function getCycleRange() {
+  const now = new Date();
+  const d = now.getDate();
+  let start, end;
 
-      useEffect(() => {
-        const saved = localStorage.getItem("transactions");
-        const savedBudget = localStorage.getItem("budget");
-        if (saved) setTransactions(JSON.parse(saved));
-        if (savedBudget) setBudget(Number(savedBudget));
-      }, []);
+  if (d >= 27) {
+    start = new Date(now.getFullYear(), now.getMonth(), 27);
+    end = new Date(now.getFullYear(), now.getMonth() + 1, 26);
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 27);
+    end = new Date(now.getFullYear(), now.getMonth(), 26);
+  }
+  return { start, end };
+}
 
-      useEffect(() => {
-        localStorage.setItem("transactions", JSON.stringify(transactions));
-      }, [transactions]);
+function inCycle(date) {
+  const { start, end } = getCycleRange();
+  const d = new Date(date);
+  return d >= start && d <= end;
+}
 
-      useEffect(() => {
-        localStorage.setItem("budget", budget);
-      }, [budget]);
+/* ------------------ APP ------------------ */
+function App() {
+  const [budget, setBudget] = useState(0);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [methods, setMethods] = useState(DEFAULT_METHODS);
+  const [tx, setTx] = useState([]);
+  const [view, setView] = useState("home");
 
-      const total = transactions.reduce((s, t) => s + t.amount, 0);
+  const [form, setForm] = useState({
+    type: "expense",
+    amount: "",
+    category: categories[0],
+    method: methods[0],
+    date: new Date().toISOString().slice(0,10),
+    note: ""
+  });
 
-      function addTransaction() {
-        if (!form.amount) return;
-        setTransactions([
-          { id: Date.now(), amount: Number(form.amount), ...form },
-          ...transactions
-        ]);
-        setForm({ amount: '', note: '', date: form.date });
-      }
+  /* ---------- storage ---------- */
+  useEffect(() => {
+    const d = JSON.parse(localStorage.getItem("moneyData") || "{}");
+    if (d.budget) setBudget(d.budget);
+    if (d.tx) setTx(d.tx);
+    if (d.categories) setCategories(d.categories);
+    if (d.methods) setMethods(d.methods);
+  }, []);
 
-      return (
-        <div className="max-w-md mx-auto p-4">
-          <h1 className="text-2xl font-bold mb-4 text-indigo-600">
-            💰 Money Tracker
-          </h1>
+  useEffect(() => {
+    localStorage.setItem("moneyData", JSON.stringify({
+      budget, tx, categories, methods
+    }));
+  }, [budget, tx, categories, methods]);
 
-          <div className="bg-white p-4 rounded-lg shadow mb-4">
-            <label className="block text-sm mb-1">Monthly Budget</label>
-            <input
-              type="number"
+  /* ---------- calculations ---------- */
+  const cycleTx = tx.filter(t => inCycle(t.date));
+
+  const sum = (type) =>
+    cycleTx.filter(t => t.type === type)
+           .reduce((s,t)=>s+t.amount,0);
+
+  const income = sum("income");
+  const expense = sum("expense");
+  const saving = sum("saving");
+  const remaining = income - expense - saving;
+  const percent = budget ? (expense / budget) * 100 : 0;
+
+  const groupBy = (key) => {
+    const out = {};
+    cycleTx.filter(t=>t.type==="expense").forEach(t=>{
+      out[t[key]] = (out[t[key]]||0)+t.amount;
+    });
+    return out;
+  };
+
+  /* ---------- actions ---------- */
+  function addTx() {
+    if (!form.amount) return;
+    setTx([{...form, id:Date.now(), amount:+form.amount}, ...tx]);
+    setForm({...form, amount:"", note:""});
+  }
+
+  /* ------------------ UI ------------------ */
+  return (
+    <div className="max-w-md mx-auto p-4 pb-24">
+      <header className="flex justify-between mb-4">
+        <h1 className="text-xl font-bold">💰 Money Tracker</h1>
+        <button onClick={()=>setView(view==="home"?"settings":"home")}
+          className="text-sm text-indigo-600">
+          {view==="home"?"Settings":"Back"}
+        </button>
+      </header>
+
+      {view==="home" && (
+      <>
+        {/* Budget */}
+        <div className="bg-white p-4 rounded-xl shadow mb-4">
+          <p className="text-sm text-gray-500">Budget</p>
+          <p className="text-2xl font-bold">฿{budget.toLocaleString()}</p>
+          <div className="mt-2 bg-gray-200 h-2 rounded">
+            <div className="h-2 bg-indigo-500 rounded"
+              style={{width:Math.min(percent,100)+"%"}} />
+          </div>
+          <p className="text-xs mt-1">{percent.toFixed(1)}%</p>
+        </div>
+
+        {/* Summary */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Card label="Income" val={income} />
+          <Card label="Expense" val={expense} />
+          <Card label="Saving" val={saving} />
+          <Card label="Remaining" val={remaining} />
+        </div>
+
+        {/* Add */}
+        <div className="bg-white p-4 rounded-xl shadow mb-4 space-y-2">
+          <select className="w-full border p-2 rounded"
+            value={form.type}
+            onChange={e=>setForm({...form,type:e.target.value})}>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+            <option value="saving">Saving</option>
+          </select>
+
+          <input className="w-full border p-2 rounded"
+            placeholder="Amount (฿)"
+            type="number"
+            value={form.amount}
+            onChange={e=>setForm({...form,amount:e.target.value})} />
+
+          <select className="w-full border p-2 rounded"
+            value={form.category}
+            onChange={e=>setForm({...form,category:e.target.value})}>
+            {categories.map(c=><option key={c}>{c}</option>)}
+          </select>
+
+          <select className="w-full border p-2 rounded"
+            value={form.method}
+            onChange={e=>setForm({...form,method:e.target.value})}>
+            {methods.map(m=><option key={m}>{m}</option>)}
+          </select>
+
+          <button onClick={addTx}
+            className="w-full bg-indigo-600 text-white p-2 rounded">
+            Add
+          </button>
+        </div>
+
+        {/* Lists */}
+        <List title="By Category" data={groupBy("category")} />
+        <List title="By Payment" data={groupBy("method")} />
+      </>
+      )}
+
+      {view==="settings" && (
+        <div className="bg-white p-4 rounded-xl shadow space-y-4">
+          <div>
+            <label className="text-sm">Budget</label>
+            <input type="number" className="w-full border p-2 rounded"
               value={budget}
-              onChange={e => setBudget(Number(e.target.value))}
-              className="w-full border p-2 rounded"
-            />
-          </div>
-
-          <div className="bg-white p-4 rounded-lg shadow mb-4">
-            <p className="font-semibold">Spent: ฿{total}</p>
-            <p className="text-sm text-gray-500">
-              Remaining: ฿{budget - total}
-            </p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg shadow mb-4">
-            <input
-              type="number"
-              placeholder="Amount"
-              value={form.amount}
-              onChange={e => setForm({ ...form, amount: e.target.value })}
-              className="w-full border p-2 rounded mb-2"
-            />
-            <input
-              type="text"
-              placeholder="Note"
-              value={form.note}
-              onChange={e => setForm({ ...form, note: e.target.value })}
-              className="w-full border p-2 rounded mb-2"
-            />
-            <button
-              onClick={addTransaction}
-              className="w-full bg-indigo-600 text-white p-2 rounded"
-            >
-              Add
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {transactions.map(t => (
-              <div key={t.id} className="bg-white p-3 rounded shadow flex justify-between">
-                <span>{t.note || "Expense"}</span>
-                <span className="font-bold">฿{t.amount}</span>
-              </div>
-            ))}
+              onChange={e=>setBudget(+e.target.value)} />
           </div>
         </div>
-      );
-    }
+      )}
+    </div>
+  );
+}
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<MoneyTracker />);
+/* ------------------ SMALL COMPONENTS ------------------ */
+const Card = ({label,val}) => (
+  <div className="bg-white p-3 rounded-xl shadow">
+    <p className="text-xs text-gray-500">{label}</p>
+    <p className="font-bold">฿{val.toLocaleString()}</p>
+  </div>
+);
 
-  </script>
+const List = ({title,data}) => (
+  <div className="bg-white p-4 rounded-xl shadow mb-4">
+    <h3 className="font-semibold mb-2">{title}</h3>
+    {Object.entries(data).map(([k,v])=>(
+      <div key={k} className="text-sm flex justify-between">
+        <span>{k}</span><span>฿{v.toLocaleString()}</span>
+      </div>
+    ))}
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
