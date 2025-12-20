@@ -167,6 +167,11 @@ input, select {
 const { useState, useEffect } = React;
 
 function App() {
+
+  function openMenu(page) {
+  setMenuPage(page);
+  setDrawerOpen(false);
+}
   const [tab, setTab] = useState("tx");
   const [showAdd, setShowAdd] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -476,8 +481,6 @@ const [menuPage, setMenuPage] = useState(null);
         function openMenu(page) {
   setMenuPage(page);
   setDrawerOpen(false);
-  openMenu("category");
-  openMenu("payment");
 }
 
 function AddTxn({settings,onSave,onClose}) {
