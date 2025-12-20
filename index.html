@@ -262,30 +262,6 @@ const [menuPage, setMenuPage] = useState(null);
   </div>
 )}
 
-      {drawerOpen && (
-  <div className="overlay" onClick={() => setDrawerOpen(false)}>
-    <div className="drawer" onClick={e => e.stopPropagation()}>
-      <h3>Money Mgmt</h3>
-
-      <MenuItem label="📊 Budget Ratio" onClick={() => openMenu("budgetRatio")} />
-      <MenuItem label="💰 Budget (Total)" onClick={() => openMenu("budgetTotal")} />
-      <MenuItem label="📈 Usage (Total)" onClick={() => openMenu("usageTotal")} />
-
-      <hr />
-
-      <MenuItem label="📋 Budget" onClick={() => openMenu("budget")} />
-      <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
-      <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
-      <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
-
-      <hr />
-
-      <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
-      <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
-    </div>
-  </div>
-)}
-
       <main>
         {tab==="tx" && Object.entries(groupedTxns()).map(([d,list])=>(
           <div key={d}>
