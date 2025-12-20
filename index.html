@@ -1,251 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Money Tracker</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Money Tracker</title>
 
-  <!-- React CDN -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
-      color: #222;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4f4f4;
+}
 
-    header {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      background: white;
-      border-bottom: 1px solid #ddd;
-    }
+header {
+  height: 52px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid #ddd;
+}
 
-    header h1 {
-      flex: 1;
-      text-align: center;
-      font-size: 16px;
-      margin: 0;
-    }
+header h1 {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+}
 
-    .menu-btn {
-      font-size: 22px;
-      background: none;
-      border: none;
-    }
+.menu {
+  font-size: 22px;
+  background: none;
+  border: none;
+}
 
-    main {
-      padding: 12px;
-      padding-bottom: 80px;
-    }
+main {
+  padding: 12px;
+  padding-bottom: 90px;
+}
 
-    .date-group {
-      margin-bottom: 16px;
-    }
+.txn {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
 
-    .date-title {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+.amount {
+  font-weight: 600;
+}
 
-    .txn {
-      background: white;
-      padding: 10px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
+.expense { color: #e53935; }
+.income { color: #2e7d32; }
+.saving { color: #1565c0; }
+.charge { color: #6a1b9a; }
 
-    .amount {
-      color: #e53935;
-      font-weight: 600;
-    }
+.date-title {
+  font-weight: bold;
+  margin: 12px 0 6px;
+}
 
-    .fab {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #4caf50;
-      color: white;
-      font-size: 32px;
-      border: none;
-    }
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  display: flex;
+  border-top: 1px solid #ddd;
+}
 
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      background: white;
-      border-top: 1px solid #ddd;
-    }
+nav button {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 10px;
+  font-size: 12px;
+}
 
-    nav button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: none;
-      font-size: 12px;
-    }
+.active {
+  color: #4caf50;
+  font-weight: bold;
+}
 
-    .active {
-      color: #4caf50;
-      font-weight: bold;
-    }
+.fab {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: #fff;
+  font-size: 32px;
+  border: none;
+}
 
-    .bar {
-      height: 10px;
-      background: #ddd;
-      border-radius: 5px;
-      overflow: hidden;
-    }
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
 
-    .bar > div {
-      height: 100%;
-      background: #4caf50;
-    }
+.sheet {
+  background: #fff;
+  width: 92%;
+  max-height: 90%;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 12px;
+}
 
-    .sheet {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  font-size: 16px;
+}
 
-    .sheet-content {
-      background: white;
-      width: 90%;
-      padding: 16px;
-      border-radius: 12px;
-    }
+.bar {
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 12px;
-      font-size: 16px;
-    }
-  </style>
+.bar div {
+  height: 100%;
+  background: #4caf50;
+}
+</style>
 </head>
 
 <body>
-  <div id="app"></div>
+<div id="app"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+<script type="text/babel">
+const { useState, useEffect } = React;
 
-    function App() {
-      const [tab, setTab] = useState("tx");
-      const [showAdd, setShowAdd] = useState(false);
-      const [txns, setTxns] = useState(
-        JSON.parse(localStorage.getItem("txns") || "[]")
-      );
+function App() {
+  const [tab, setTab] = useState("tx");
+  const [showAdd, setShowAdd] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
-      useEffect(() => {
-        localStorage.setItem("txns", JSON.stringify(txns));
-      }, [txns]);
+  const [settings, setSettings] = useState(
+    JSON.parse(localStorage.getItem("settings")) || {
+      cycleName: "Default Cycle",
+      cycleStart: 27,
+      cycleEnd: 26,
+      categories: [
+        { name: "🍽️ Food", budget: 5000 },
+        { name: "🛍️ Shopping", budget: 3000 },
+        { name: "🚇 Transportation", budget: 2000 },
+        { name: "⛽ Gasoline", budget: 1500 },
+        { name: "📱 Phone", budget: 1000 },
+        { name: "💳 Charge", budget: 4000 },
+        { name: "📦 Others", budget: 2000 }
+      ],
+      payments: ["💵 Cash/QR", "💳 Credit Card", "♦️ TrueMoney", "🐰 Rabbit Card"]
+    }
+  );
 
-      function addTxn(t) {
-        setTxns([t, ...txns]);
-        setShowAdd(false);
-      }
+  const [txns, setTxns] = useState(
+    JSON.parse(localStorage.getItem("txns")) || []
+  );
 
-      function grouped() {
-        const map = {};
-        txns.forEach(t => {
-          map[t.date] = map[t.date] || [];
-          map[t.date].push(t);
-        });
-        return map;
-      }
+  useEffect(() => {
+    localStorage.setItem("txns", JSON.stringify(txns));
+    localStorage.setItem("settings", JSON.stringify(settings));
+  }, [txns, settings]);
 
-      return (
-        <>
-          <header>
-            <button className="menu-btn">☰</button>
-            <h1>
-              {tab === "tx" && "Transactions"}
-              {tab === "net" && "Net"}
-              {tab === "usage" && "Usage"}
-              {tab === "pay" && "Payment"}
-            </h1>
-            <div style={{ width: 24 }} />
-          </header>
+  function groupedTxns() {
+    const map = {};
+    txns
+      .sort((a,b) => new Date(b.date) - new Date(a.date))
+      .forEach(t => {
+        map[t.date] = map[t.date] || [];
+        map[t.date].push(t);
+      });
+    return map;
+  }
 
-          <main>
-            {tab === "tx" && Object.entries(grouped()).map(([date, items]) => (
-              <div key={date} className="date-group">
-                <div className="date-title">{date}</div>
-                {items.map(t => (
-                  <div key={t.id} className="txn">
-                    <span>{t.cat}</span>
-                    <span className="amount">
-                      {t.amount.toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+  function totalBy(field) {
+    return txns.filter(t => t.type === field)
+      .reduce((s,t)=>s+t.amount,0);
+  }
+
+  return (
+    <>
+      <header>
+        <button className="menu" onClick={()=>setShowSettings(true)}>☰</button>
+        <h1>
+          {tab==="tx" && "Transactions"}
+          {tab==="net" && "Net"}
+          {tab==="usage" && "Category Usage"}
+          {tab==="pay" && "Payment Usage"}
+        </h1>
+        <div style={{width:24}} />
+      </header>
+
+      <main>
+        {tab==="tx" && Object.entries(groupedTxns()).map(([d,list])=>(
+          <div key={d}>
+            <div className="date-title">{d}</div>
+            {list.map(t=>(
+              <div key={t.id} className="txn">
+                <div>
+                  <div>{t.category}</div>
+                  <small>{t.note}</small>
+                </div>
+                <div className={`amount ${t.type}`}>
+                  {t.type==="income"?"+":"-"}฿{t.amount.toFixed(2)}
+                </div>
               </div>
             ))}
+          </div>
+        ))}
 
-            {tab === "net" && <p>Net summary here</p>}
-            {tab === "usage" && <p>Category usage bars here</p>}
-            {tab === "pay" && <p>Payment donut here</p>}
-          </main>
+        {tab==="net" && (
+          <>
+            <p>Income: ฿{totalBy("income").toFixed(2)}</p>
+            <p>Expense: ฿{totalBy("expense").toFixed(2)}</p>
+            <p>Saving: ฿{totalBy("saving").toFixed(2)}</p>
+            <p><b>Remaining: ฿{(totalBy("income")-totalBy("expense")-totalBy("saving")).toFixed(2)}</b></p>
+          </>
+        )}
 
-          {tab === "tx" && (
-            <button className="fab" onClick={() => setShowAdd(true)}>+</button>
-          )}
-
-          <nav>
-            <button onClick={() => setTab("tx")} className={tab==="tx"?"active":""}>Txn</button>
-            <button onClick={() => setTab("net")} className={tab==="net"?"active":""}>Net</button>
-            <button onClick={() => setTab("usage")} className={tab==="usage"?"active":""}>Usage</button>
-            <button onClick={() => setTab("pay")} className={tab==="pay"?"active":""}>Pay</button>
-          </nav>
-
-          {showAdd && (
-            <div className="sheet">
-              <div className="sheet-content">
-                <h3>Add Expense</h3>
-                <input type="number" step="0.01" placeholder="Amount"
-                  onChange={e => window._amt = parseFloat(e.target.value)} />
-                <select onChange={e => window._cat = e.target.value}>
-                  <option>🍽️ Food</option>
-                  <option>🛍️ Shopping</option>
-                  <option>🚇 Transportation</option>
-                  <option>⛽ Gasoline</option>
-                  <option>📱 Phone</option>
-                  <option>💳 Charge</option>
-                  <option>📦 Others</option>
-                </select>
-                <button onClick={() => addTxn({
-                  id: Date.now(),
-                  date: new Date().toLocaleDateString(),
-                  cat: window._cat || "🍽️ Food",
-                  amount: window._amt || 0
-                })}>Save</button>
+        {tab==="usage" && settings.categories.map(c=>{
+          const used = txns.filter(t=>t.category===c.name && t.type==="expense")
+            .reduce((s,t)=>s+t.amount,0);
+          return (
+            <div key={c.name}>
+              <div>{c.name} ฿{used}/{c.budget}</div>
+              <div className="bar">
+                <div style={{width:Math.min(100,(used/c.budget)*100)+"%"}}></div>
               </div>
             </div>
-          )}
-        </>
-      );
-    }
+          );
+        })}
 
-    ReactDOM.createRoot(document.getElementById("app")).render(<App />);
-  </script>
+        {tab==="pay" && settings.payments.map(p=>{
+          const amt = txns.filter(t=>t.payment===p)
+            .reduce((s,t)=>s+t.amount,0);
+          return <p key={p}>{p}: ฿{amt.toFixed(2)}</p>;
+        })}
+      </main>
+
+      <button className="fab" onClick={()=>setShowAdd(true)}>＋</button>
+
+      <nav>
+        <button onClick={()=>setTab("tx")} className={tab==="tx"?"active":""}>Txn</button>
+        <button onClick={()=>setTab("net")} className={tab==="net"?"active":""}>Net</button>
+        <button onClick={()=>setTab("usage")} className={tab==="usage"?"active":""}>Usage</button>
+        <button onClick={()=>setTab("pay")} className={tab==="pay"?"active":""}>Pay</button>
+      </nav>
+
+      {showAdd && <AddTxn settings={settings} onSave={t=>{setTxns([t,...txns]);setShowAdd(false);}} onClose={()=>setShowAdd(false)} />}
+
+      {showSettings && <Settings settings={settings} setSettings={setSettings} onClose={()=>setShowSettings(false)} />}
+    </>
+  );
+}
+
+function AddTxn({settings,onSave,onClose}) {
+  const [data,setData]=useState({
+    type:"expense",
+    amount:"",
+    date:new Date().toISOString().slice(0,10),
+    category:settings.categories[0].name,
+    payment:settings.payments[0],
+    note:""
+  });
+
+  return (
+    <div className="overlay">
+      <div className="sheet">
+        <h3>Add Transaction</h3>
+
+        <select onChange={e=>setData({...data,type:e.target.value})}>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+          <option value="saving">Saving</option>
+          <option value="charge">Charge</option>
+        </select>
+
+        <input type="number" step="0.01" placeholder="Amount"
+          onChange={e=>setData({...data,amount:parseFloat(e.target.value)})} />
+
+        <input type="date" value={data.date}
+          onChange={e=>setData({...data,date:e.target.value})} />
+
+        <select onChange={e=>setData({...data,category:e.target.value})}>
+          {settings.categories.map(c=><option key={c.name}>{c.name}</option>)}
+        </select>
+
+        <select onChange={e=>setData({...data,payment:e.target.value})}>
+          {settings.payments.map(p=><option key={p}>{p}</option>)}
+        </select>
+
+        <input placeholder="Description"
+          onChange={e=>setData({...data,note:e.target.value})} />
+
+        <button onClick={()=>onSave({id:Date.now(),...data})}>Save</button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+function Settings({settings,setSettings,onClose}) {
+  return (
+    <div className="overlay">
+      <div className="sheet">
+        <h3>Master Settings</h3>
+
+        <label>Cycle Name</label>
+        <input value={settings.cycleName}
+          onChange={e=>setSettings({...settings,cycleName:e.target.value})} />
+
+        <label>Cycle Start</label>
+        <input type="number" value={settings.cycleStart}
+          onChange={e=>setSettings({...settings,cycleStart:+e.target.value})} />
+
+        <label>Cycle End</label>
+        <input type="number" value={settings.cycleEnd}
+          onChange={e=>setSettings({...settings,cycleEnd:+e.target.value})} />
+
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App />);
+</script>
 </body>
 </html>
