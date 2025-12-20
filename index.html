@@ -99,6 +99,7 @@ function App(){
 
   return (
     <div className="max-w-md mx-auto p-4 pb-24">
+      
       {/* HEADER */}
       <div className="flex justify-between mb-4">
         <h1 className="text-xl font-bold">💰 Money Tracker</h1>
@@ -107,6 +108,28 @@ function App(){
         )}
       </div>
 
+          {/* CATEGORY BUDGET */}
+          <div className="mt-6">
+            <h2 className="font-semibold mb-2">Category Budgets</h2>
+            {categories.map(c=>{
+              const spent = categorySpent(c.name);
+              const pct = (spent/c.budget)*100;
+              return (
+                <div key={c.name} className="bg-white p-3 rounded-xl shadow mb-2">
+                  <div className="flex justify-between text-sm">
+                    <span>{c.name}</span>
+                    <span>฿{spent} / ฿{c.budget}</span>
+                  </div>
+                  <div className="bg-gray-200 h-2 rounded mt-1">
+                    <div className="bg-indigo-500 h-2 rounded"
+                      style={{width:Math.min(pct,100)+"%"}} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+      
       {/* LIST VIEW */}
       {view==="list" && (
         <>
@@ -129,27 +152,6 @@ function App(){
               ))}
             </div>
           ))}
-
-          {/* CATEGORY BUDGET */}
-          <div className="mt-6">
-            <h2 className="font-semibold mb-2">Category Budgets</h2>
-            {categories.map(c=>{
-              const spent = categorySpent(c.name);
-              const pct = (spent/c.budget)*100;
-              return (
-                <div key={c.name} className="bg-white p-3 rounded-xl shadow mb-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{c.name}</span>
-                    <span>฿{spent} / ฿{c.budget}</span>
-                  </div>
-                  <div className="bg-gray-200 h-2 rounded mt-1">
-                    <div className="bg-indigo-500 h-2 rounded"
-                      style={{width:Math.min(pct,100)+"%"}} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
 
           {/* ADD BUTTON */}
           <button
