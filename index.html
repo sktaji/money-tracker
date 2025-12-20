@@ -362,11 +362,122 @@ const [menuPage, setMenuPage] = useState(null);
     <button onClick={() => setMenuPage(null)}>Back</button>
   </div>
 )}
+
+  {menuPage === "category" && (
+  <div className="overlay">
+    <div className="sheet">
+      <h3>Category Settings</h3>
+
+      {settings.categories.map((cat, idx) => (
+        <div key={idx} style={{ marginBottom: 12 }}>
+          <input
+            value={cat.name}
+            placeholder="Category name"
+            onChange={e => {
+              const copy = [...settings.categories];
+              copy[idx].name = e.target.value;
+              setSettings({ ...settings, categories: copy });
+            }}
+          />
+
+          <input
+            type="number"
+            placeholder="Budget (THB)"
+            value={cat.budget}
+            onChange={e => {
+              const copy = [...settings.categories];
+              copy[idx].budget = Number(e.target.value);
+              setSettings({ ...settings, categories: copy });
+            }}
+          />
+
+          <button
+            style={{ background: "#e53935", color: "#fff" }}
+            onClick={() => {
+              if (!confirm("Delete this category?")) return;
+              setSettings({
+                ...settings,
+                categories: settings.categories.filter((_, i) => i !== idx)
+              });
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      ))}
+
+      <button
+        onClick={() =>
+          setSettings({
+            ...settings,
+            categories: [
+              ...settings.categories,
+              { name: "🆕 New Category", budget: 0 }
+            ]
+          })
+        }
+      >
+        + Add Category
+      </button>
+
+      <button onClick={() => setMenuPage(null)}>Back</button>
+    </div>
+  </div>
+)}
+  
+  {menuPage === "payment" && (
+  <div className="overlay">
+    <div className="sheet">
+      <h3>Payment Methods</h3>
+
+      {settings.payments.map((p, idx) => (
+        <div key={idx} style={{ display: "flex", gap: 8 }}>
+          <input
+            value={p}
+            onChange={e => {
+              const copy = [...settings.payments];
+              copy[idx] = e.target.value;
+              setSettings({ ...settings, payments: copy });
+            }}
+          />
+
+          <button
+            style={{ background: "#e53935", color: "#fff" }}
+            onClick={() => {
+              if (!confirm("Delete this payment method?")) return;
+              setSettings({
+                ...settings,
+                payments: settings.payments.filter((_, i) => i !== idx)
+              });
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+
+      <button
+        onClick={() =>
+          setSettings({
+            ...settings,
+            payments: [...settings.payments, "🆕 New Method"]
+          })
+        }
+      >
+        + Add Payment Method
+      </button>
+
+      <button onClick={() => setMenuPage(null)}>Back</button>
+    </div>
+  </div>
+)}
   
 
         function openMenu(page) {
   setMenuPage(page);
   setDrawerOpen(false);
+  openMenu("category");
+  openMenu("payment");
 }
 
 function AddTxn({settings,onSave,onClose}) {
