@@ -188,10 +188,15 @@ function App(){
             ))}
           </div>
 
-          <div className="flex items-center border rounded-xl p-3">
-            <button onClick={()=>setForm({...form,amount:Math.max(0,form.amount-10)})}>−</button>
-            <div className="flex-1 text-center text-xl">฿{form.amount}</div>
-            <button onClick={()=>setForm({...form,amount:form.amount+10})}>+</button>
+          <div>
+            <label className="text-sm text-gray-500">Amount (THB)</label>
+            <input type="number"
+              inputMode="decimal"
+              step="0.01"
+              placeholder="0.00"
+              value={form.amount}
+              onChange={e=>setForm({...form,amount:Number(e.target.value)})}
+              className="w-full text-2xl p-3 rounded-xl border text-right"/>
           </div>
 
           <input className="w-full p-3 rounded border"
