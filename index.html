@@ -139,6 +139,24 @@ input, select {
   height: 100%;
   background: #4caf50;
 }
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 75%;
+  height: 100%;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 2px 0 8px rgba(0,0,0,.2);
+}
+
+.menu-item {
+  padding: 12px 0;
+  font-size: 15px;
+  border-bottom: 1px solid #eee;
+}
+  
 </style>
 </head>
 
@@ -175,6 +193,11 @@ function App() {
     JSON.parse(localStorage.getItem("txns")) || []
   );
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+const [menuPage, setMenuPage] = useState(null);
+// menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
+//            | "budget" | "period" | "category" | "payment" | "about"
+
   useEffect(() => {
     localStorage.setItem("txns", JSON.stringify(txns));
     localStorage.setItem("settings", JSON.stringify(settings));
@@ -196,10 +219,11 @@ function App() {
       .reduce((s,t)=>s+t.amount,0);
   }
 
+  
   return (
     <>
       <header>
-        <button className="menu" onClick={()=>setShowSettings(true)}>☰</button>
+        <button className="menu" onClick={() => setDrawerOpen(true)}>☰</button>
         <h1>
           {tab==="tx" && "Transactions"}
           {tab==="net" && "Net"}
@@ -208,6 +232,54 @@ function App() {
         </h1>
         <div style={{width:24}} />
       </header>
+
+      {drawerOpen && (
+  <div className="overlay" onClick={() => setDrawerOpen(false)}>
+    <div className="drawer" onClick={e => e.stopPropagation()}>
+      <h3>Money Mgmt</h3>
+
+      <MenuItem label="📊 Budget Ratio" onClick={() => openMenu("budgetRatio")} />
+      <MenuItem label="💰 Budget (Total)" onClick={() => openMenu("budgetTotal")} />
+      <MenuItem label="📈 Usage (Total)" onClick={() => openMenu("usageTotal")} />
+
+      <hr />
+
+      <MenuItem label="📋 Budget" onClick={() => openMenu("budget")} />
+      <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
+      <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
+      <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
+
+      <hr />
+
+      <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
+      <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
+    </div>
+  </div>
+)}
+
+      {drawerOpen && (
+  <div className="overlay" onClick={() => setDrawerOpen(false)}>
+    <div className="drawer" onClick={e => e.stopPropagation()}>
+      <h3>Money Mgmt</h3>
+
+      <MenuItem label="📊 Budget Ratio" onClick={() => openMenu("budgetRatio")} />
+      <MenuItem label="💰 Budget (Total)" onClick={() => openMenu("budgetTotal")} />
+      <MenuItem label="📈 Usage (Total)" onClick={() => openMenu("usageTotal")} />
+
+      <hr />
+
+      <MenuItem label="📋 Budget" onClick={() => openMenu("budget")} />
+      <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
+      <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
+      <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
+
+      <hr />
+
+      <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
+      <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
+    </div>
+  </div>
+)}
 
       <main>
         {tab==="tx" && Object.entries(groupedTxns()).map(([d,list])=>(
@@ -270,6 +342,31 @@ function App() {
       {showSettings && <Settings settings={settings} setSettings={setSettings} onClose={()=>setShowSettings(false)} />}
     </>
   );
+}
+{menuPage === "period" && (
+  <div className="sheet">
+    <h3>Period Settings</h3>
+
+    <label>Cycle Name</label>
+    <input value={settings.cycleName}
+      onChange={e => setSettings({...settings, cycleName: e.target.value})} />
+
+    <label>Start Day</label>
+    <input type="number" value={settings.cycleStart}
+      onChange={e => setSettings({...settings, cycleStart: +e.target.value})} />
+
+    <label>End Day</label>
+    <input type="number" value={settings.cycleEnd}
+      onChange={e => setSettings({...settings, cycleEnd: +e.target.value})} />
+
+    <button onClick={() => setMenuPage(null)}>Back</button>
+  </div>
+)}
+  
+
+        function openMenu(page) {
+  setMenuPage(page);
+  setDrawerOpen(false);
 }
 
 function AddTxn({settings,onSave,onClose}) {
