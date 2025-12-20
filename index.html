@@ -1,856 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Money Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            padding-bottom: 80px;
-        }
-        
-        .header {
-            background: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .budget-section {
-            background: white;
-            margin: 10px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .budget-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .budget-card {
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-        }
-        
-        .budget-card.budget {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .budget-card.remaining {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        .budget-card.positive {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        
-        .budget-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-        
-        .budget-amount {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #667eea;
-            transition: width 0.3s;
-        }
-        
-        .progress-fill.warning {
-            background: #ffa726;
-        }
-        
-        .progress-fill.danger {
-            background: #ef5350;
-        }
-        
-        .tabs {
-            display: flex;
-            background: white;
-            margin: 10px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            background: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            background: #667eea;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .content {
-            margin: 10px;
-        }
-        
-        .transaction-list {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-        
-        .transaction-emoji {
-            font-size: 24px;
-            margin-right: 15px;
-        }
-        
-        .transaction-details {
-            flex: 1;
-        }
-        
-        .transaction-category {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 3px;
-        }
-        
-        .transaction-note {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .transaction-date {
-            font-size: 11px;
-            color: #bbb;
-        }
-        
-        .transaction-amount {
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .transaction-amount.expense {
-            color: #ef5350;
-        }
-        
-        .transaction-amount.income {
-            color: #66bb6a;
-        }
-        
-        .transaction-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-delete {
-            padding: 5px 10px;
-            background: #ef5350;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .chart-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .chart-item {
-            margin-bottom: 15px;
-        }
-        
-        .chart-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-        
-        .chart-bar {
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        .chart-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            color: white;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .fab {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #667eea;
-            color: white;
-            border: none;
-            font-size: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .form-input, .form-select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-        
-        .emoji-btn {
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .emoji-btn.selected {
-            border-color: #667eea;
-            background: #f0f0ff;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .btn-cancel {
-            background: #e0e0e0;
-            color: #666;
-        }
-        
-        .btn-save {
-            background: #667eea;
-            color: white;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        
-        .stat-value.income {
-            color: #66bb6a;
-        }
-        
-        .stat-value.expense {
-            color: #ef5350;
-        }
-        
-        .stat-value.saving {
-            color: #42a5f5;
-        }
-        
-        .settings-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .settings-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-        
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<title>Money Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+<!-- Babel -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-    <div class="header">
-        <div class="header-title">💰 Money Tracker</div>
-    </div>
 
-    <div class="budget-section">
-        <div class="budget-info">
-            <div class="budget-card budget">
-                <div class="budget-label">Budget</div>
-                <div class="budget-amount" id="budgetDisplay">฿0</div>
-            </div>
-            <div class="budget-card remaining" id="remainingCard">
-                <div class="budget-label">Remaining</div>
-                <div class="budget-amount" id="remainingDisplay">฿0</div>
-            </div>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressBar"></div>
-        </div>
-    </div>
+<body class="bg-gray-100">
+<div id="root"></div>
 
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('transactions')">📝 Transactions</button>
-        <button class="tab" onclick="showTab('net')">📊 Net</button>
-        <button class="tab" onclick="showTab('usage')">📈 Usage</button>
-        <button class="tab" onclick="showTab('settings')">⚙️ Settings</button>
-    </div>
+<script type="text/babel">
+const { useState, useEffect } = React;
 
-    <div class="content">
-        <!-- Transactions Tab -->
-        <div id="transactionsTab" class="tab-content">
-            <div class="transaction-list" id="transactionList"></div>
-        </div>
+/* ---------- CONFIG ---------- */
+const DEFAULT_CATEGORIES = [
+  { name:"🍽️ Food", budget:3000 },
+  { name:"🛍️ Shopping", budget:2000 },
+  { name:"🚇 Transportation", budget:1500 },
+  { name:"⛽ Gasoline", budget:2000 },
+  { name:"📱 Phone", budget:800 },
+  { name:"💳 Charge", budget:5000 },
+  { name:"📦 Others", budget:1000 }
+];
 
-        <!-- Net Tab -->
-        <div id="netTab" class="tab-content" style="display: none;">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">💰 Income</div>
-                    <div class="stat-value income" id="incomeTotal">฿0</div>
+const PAYMENT_METHODS = [
+  "💵 Cash/QR", "💳 Credit Card", "♦️ TrueMoney", "🐰 Rabbit Card"
+];
+
+/* ---------- HELPERS ---------- */
+function getPeriod(dateStr){
+  const d = new Date(dateStr);
+  const day = d.getDate();
+  let m = d.getMonth()+1;
+  let y = d.getFullYear();
+  if(day < 27){ m--; if(m===0){ m=12; y--; } }
+  return `${String(m).padStart(2,"0")}-${y}`;
+}
+
+function groupByDate(tx){
+  return [...tx]
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .reduce((acc,t)=>{
+      acc[t.date] = acc[t.date] || [];
+      acc[t.date].push(t);
+      return acc;
+    },{});
+}
+
+/* ---------- APP ---------- */
+function App(){
+  const [view,setView] = useState("list");
+  const [categories,setCategories] = useState(DEFAULT_CATEGORIES);
+  const [tx,setTx] = useState([]);
+
+  const [form,setForm] = useState({
+    date: new Date().toISOString().slice(0,10),
+    type: "expense",
+    category: DEFAULT_CATEGORIES[0].name,
+    method: PAYMENT_METHODS[0],
+    amount: 0,
+    note: ""
+  });
+
+  /* storage */
+  useEffect(()=>{
+    const d = JSON.parse(localStorage.getItem("money-react")||"{}");
+    if(d.tx) setTx(d.tx);
+    if(d.categories) setCategories(d.categories);
+  },[]);
+
+  useEffect(()=>{
+    localStorage.setItem("money-react",JSON.stringify({tx,categories}));
+  },[tx,categories]);
+
+  function addTx(){
+    if(!form.amount) return;
+    setTx([{...form,id:Date.now(),period:getPeriod(form.date)},...tx]);
+    setView("list");
+    setForm({...form,amount:0,note:""});
+  }
+
+  const grouped = groupByDate(tx);
+
+  function categorySpent(name){
+    return tx.filter(t=>t.category===name && t.type==="expense")
+             .reduce((s,t)=>s+t.amount,0);
+  }
+
+  return (
+    <div className="max-w-md mx-auto p-4 pb-24">
+      {/* HEADER */}
+      <div className="flex justify-between mb-4">
+        <h1 className="text-xl font-bold">💰 Money Tracker</h1>
+        {view!=="list" && (
+          <button onClick={()=>setView("list")}>← Back</button>
+        )}
+      </div>
+
+      {/* LIST VIEW */}
+      {view==="list" && (
+        <>
+          {Object.entries(grouped).map(([date,items])=>(
+            <div key={date} className="mb-4">
+              <h3 className="text-sm text-gray-500 mb-2">
+                {new Date(date).toLocaleDateString("th-TH")}
+              </h3>
+              {items.map(t=>(
+                <div key={t.id}
+                  className="bg-white rounded-xl p-3 shadow flex justify-between mb-2">
+                  <div>
+                    <div className="text-sm">{t.category}</div>
+                    <div className="text-xs text-gray-400">{t.method}</div>
+                  </div>
+                  <div className={t.type==="income"?"text-green-600":"text-red-600"}>
+                    {t.type==="income"?"+":"-"}฿{t.amount}
+                  </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">💸 Expenses</div>
-                    <div class="stat-value expense" id="expenseTotal">฿0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">💵 Savings</div>
-                    <div class="stat-value saving" id="savingTotal">฿0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">💳 Charges</div>
-                    <div class="stat-value" id="chargeTotal">฿0</div>
-                </div>
+              ))}
             </div>
-            <div class="chart-container">
-                <div class="chart-title">Payment Methods</div>
-                <div id="paymentChart"></div>
-            </div>
-        </div>
+          ))}
 
-        <!-- Usage Tab -->
-        <div id="usageTab" class="tab-content" style="display: none;">
-            <div class="chart-container">
-                <div class="chart-title">Spending by Category</div>
-                <div id="categoryChart"></div>
-            </div>
-        </div>
+          {/* CATEGORY BUDGET */}
+          <div className="mt-6">
+            <h2 className="font-semibold mb-2">Category Budgets</h2>
+            {categories.map(c=>{
+              const spent = categorySpent(c.name);
+              const pct = (spent/c.budget)*100;
+              return (
+                <div key={c.name} className="bg-white p-3 rounded-xl shadow mb-2">
+                  <div className="flex justify-between text-sm">
+                    <span>{c.name}</span>
+                    <span>฿{spent} / ฿{c.budget}</span>
+                  </div>
+                  <div className="bg-gray-200 h-2 rounded mt-1">
+                    <div className="bg-indigo-500 h-2 rounded"
+                      style={{width:Math.min(pct,100)+"%"}} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        <!-- Settings Tab -->
-        <div id="settingsTab" class="tab-content" style="display: none;">
-            <div class="settings-section">
-                <div class="settings-title">Monthly Budget</div>
-                <input type="number" class="form-input" id="budgetInput" placeholder="Enter budget amount">
-                <button class="btn btn-save" onclick="saveBudget()" style="width: 100%; margin-top: 10px;">Save Budget</button>
-            </div>
+          {/* ADD BUTTON */}
+          <button
+            onClick={()=>setView("add")}
+            className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow">
+            +
+          </button>
+        </>
+      )}
+
+      {/* ADD VIEW */}
+      {view==="add" && (
+        <div className="space-y-4">
+          <input type="date" className="w-full p-3 rounded border"
+            value={form.date}
+            onChange={e=>setForm({...form,date:e.target.value})}/>
+
+          <select className="w-full p-3 rounded border"
+            value={form.type}
+            onChange={e=>setForm({...form,type:e.target.value})}>
+            <option value="expense">Outcome</option>
+            <option value="income">Income</option>
+            <option value="saving">Saving</option>
+            <option value="charge">Charge</option>
+          </select>
+
+          <div className="grid grid-cols-5 gap-2">
+            {categories.map(c=>(
+              <button key={c.name}
+                onClick={()=>setForm({...form,category:c.name})}
+                className={`p-3 rounded-xl border ${
+                  form.category===c.name?"bg-indigo-100 border-indigo-500":""
+                }`}>
+                {c.name.split(" ")[0]}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center border rounded-xl p-3">
+            <button onClick={()=>setForm({...form,amount:Math.max(0,form.amount-10)})}>−</button>
+            <div className="flex-1 text-center text-xl">฿{form.amount}</div>
+            <button onClick={()=>setForm({...form,amount:form.amount+10})}>+</button>
+          </div>
+
+          <input className="w-full p-3 rounded border"
+            placeholder="Description"
+            value={form.note}
+            onChange={e=>setForm({...form,note:e.target.value})}/>
+
+          <button onClick={addTx}
+            className="w-full bg-green-500 text-white p-3 rounded-xl">
+            Save
+          </button>
         </div>
+      )}
     </div>
+  );
+}
 
-    <!-- Add Transaction FAB -->
-    <button class="fab" onclick="openAddModal()">+</button>
-
-    <!-- Add Transaction Modal -->
-    <div class="modal" id="addModal">
-        <div class="modal-content">
-            <div class="modal-title">Add Transaction</div>
-            
-            <div class="form-group">
-                <label class="form-label">Type</label>
-                <select class="form-select" id="transactionType">
-                    <option value="expense">💸 Expense</option>
-                    <option value="income">💰 Income</option>
-                    <option value="saving">💵 Saving</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Amount (฿)</label>
-                <input type="number" class="form-input" id="transactionAmount" placeholder="0.00">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Category</label>
-                <div class="emoji-grid" id="categoryGrid">
-                    <button class="emoji-btn selected" data-category="🍔 Food">🍔</button>
-                    <button class="emoji-btn" data-category="🛍️ Shopping">🛍️</button>
-                    <button class="emoji-btn" data-category="🚇 Transport">🚇</button>
-                    <button class="emoji-btn" data-category="⛽ Gasoline">⛽</button>
-                    <button class="emoji-btn" data-category="📱 Phone">📱</button>
-                    <button class="emoji-btn" data-category="💳 Charge">💳</button>
-                    <button class="emoji-btn" data-category="📦 Others">📦</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Payment Method</label>
-                <select class="form-select" id="paymentMethod">
-                    <option value="💵 Cash/QR">💵 Cash/QR</option>
-                    <option value="💳 Credit Card">💳 Credit Card</option>
-                    <option value="🐰 TrueMoney">🐰 TrueMoney</option>
-                    <option value="🐰 Rabbit Card">🐰 Rabbit Card</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Date</label>
-                <input type="date" class="form-input" id="transactionDate">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Note (Optional)</label>
-                <input type="text" class="form-input" id="transactionNote" placeholder="Description...">
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-cancel" onclick="closeAddModal()">Cancel</button>
-                <button class="btn btn-save" onclick="saveTransaction()">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data storage
-        let transactions = [];
-        let budget = 0;
-        let selectedCategory = '🍔 Food';
-
-        // Initialize
-        function init() {
-            loadData();
-            setTodayDate();
-            setupCategoryButtons();
-            render();
-        }
-
-        // Load data from localStorage
-        function loadData() {
-            const savedTransactions = localStorage.getItem('transactions');
-            const savedBudget = localStorage.getItem('budget');
-            
-            if (savedTransactions) transactions = JSON.parse(savedTransactions);
-            if (savedBudget) budget = parseFloat(savedBudget);
-            
-            document.getElementById('budgetInput').value = budget;
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            localStorage.setItem('budget', budget.toString());
-        }
-
-        // Set today's date
-        function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('transactionDate').value = today;
-        }
-
-        // Setup category buttons
-        function setupCategoryButtons() {
-            document.querySelectorAll('.emoji-btn').forEach(btn => {
-                btn.onclick = function() {
-                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedCategory = this.dataset.category;
-                };
-            });
-        }
-
-        // Get current cycle dates (27th to 26th)
-        function getCurrentCycle() {
-            const today = new Date();
-            const day = today.getDate();
-            let startDate, endDate;
-            
-            if (day >= 27) {
-                startDate = new Date(today.getFullYear(), today.getMonth(), 27);
-                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 26);
-            } else {
-                startDate = new Date(today.getFullYear(), today.getMonth() - 1, 27);
-                endDate = new Date(today.getFullYear(), today.getMonth(), 26);
-            }
-            
-            return { startDate, endDate };
-        }
-
-        // Filter transactions for current cycle
-        function getCurrentCycleTransactions() {
-            const { startDate, endDate } = getCurrentCycle();
-            return transactions.filter(t => {
-                const tDate = new Date(t.date);
-                return tDate >= startDate && tDate <= endDate;
-            }).sort((a, b) => new Date(b.date) - new Date(a.date));
-        }
-
-        // Calculate totals
-        function calculateTotals() {
-            const cycleTransactions = getCurrentCycleTransactions();
-            const income = cycleTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const expenses = cycleTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const savings = cycleTransactions.filter(t => t.type === 'saving').reduce((sum, t) => sum + t.amount, 0);
-            const charges = cycleTransactions.filter(t => t.category === '💳 Charge').reduce((sum, t) => sum + t.amount, 0);
-            
-            return { income, expenses, savings, charges, remaining: income - expenses - savings };
-        }
-
-        // Render everything
-        function render() {
-            renderBudget();
-            renderTransactions();
-            renderCharts();
-        }
-
-        // Render budget section
-        function renderBudget() {
-            const totals = calculateTotals();
-            const remaining = totals.remaining;
-            const percentage = budget > 0 ? (totals.expenses / budget) * 100 : 0;
-            
-            document.getElementById('budgetDisplay').textContent = `฿${budget.toLocaleString()}`;
-            document.getElementById('remainingDisplay').textContent = `฿${remaining.toLocaleString()}`;
-            
-            const remainingCard = document.getElementById('remainingCard');
-            remainingCard.className = 'budget-card ' + (remaining >= 0 ? 'positive' : 'remaining');
-            
-            const progressBar = document.getElementById('progressBar');
-            progressBar.style.width = Math.min(percentage, 100) + '%';
-            progressBar.className = 'progress-fill';
-            if (percentage > 100) progressBar.classList.add('danger');
-            else if (percentage > 80) progressBar.classList.add('warning');
-        }
-
-        // Render transactions
-        function renderTransactions() {
-            const list = document.getElementById('transactionList');
-            const cycleTransactions = getCurrentCycleTransactions();
-            
-            if (cycleTransactions.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><div>No transactions yet</div></div>';
-                return;
-            }
-            
-            list.innerHTML = cycleTransactions.map(t => {
-                const emoji = t.category.split(' ')[0];
-                const categoryName = t.category.substring(emoji.length + 1);
-                const sign = t.type === 'income' ? '+' : '-';
-                const amountClass = t.type === 'income' ? 'income' : 'expense';
-                
-                return `
-                    <div class="transaction-item">
-                        <div class="transaction-emoji">${emoji}</div>
-                        <div class="transaction-details">
-                            <div class="transaction-category">${categoryName}</div>
-                            ${t.note ? `<div class="transaction-note">${t.note}</div>` : ''}
-                            <div class="transaction-date">${new Date(t.date).toLocaleDateString('en-GB')}</div>
-                        </div>
-                        <div class="transaction-amount ${amountClass}">${sign}฿${t.amount.toLocaleString()}</div>
-                        <button class="btn-delete" onclick="deleteTransaction(${t.id})">Delete</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Render charts
-        function renderCharts() {
-            const cycleTransactions = getCurrentCycleTransactions();
-            const totals = calculateTotals();
-            
-            // Update stats
-            document.getElementById('incomeTotal').textContent = `฿${totals.income.toLocaleString()}`;
-            document.getElementById('expenseTotal').textContent = `฿${totals.expenses.toLocaleString()}`;
-            document.getElementById('savingTotal').textContent = `฿${totals.savings.toLocaleString()}`;
-            document.getElementById('chargeTotal').textContent = `฿${totals.charges.toLocaleString()}`;
-            
-            // Category chart
-            const categoryTotals = {};
-            cycleTransactions.filter(t => t.type === 'expense').forEach(t => {
-                categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-            });
-            
-            const categoryChart = document.getElementById('categoryChart');
-            if (Object.keys(categoryTotals).length === 0) {
-                categoryChart.innerHTML = '<div class="empty-state"><div>No expenses yet</div></div>';
-            } else {
-                categoryChart.innerHTML = Object.entries(categoryTotals)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([cat, amount]) => {
-                        const percent = (amount / totals.expenses) * 100;
-                        return `
-                            <div class="chart-item">
-                                <div class="chart-label">
-                                    <span>${cat}</span>
-                                    <span>฿${amount.toLocaleString()}</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="chart-bar-fill" style="width: ${percent}%">${percent.toFixed(1)}%</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-            }
-            
-            // Payment method chart
-            const paymentTotals = {};
-            cycleTransactions.filter(t => t.type === 'expense').forEach(t => {
-                paymentTotals[t.paymentMethod] = (paymentTotals[t.paymentMethod] || 0) + t.amount;
-            });
-            
-            const paymentChart = document.getElementById('paymentChart');
-            if (Object.keys(paymentTotals).length === 0) {
-                paymentChart.innerHTML = '<div class="empty-state"><div>No expenses yet</div></div>';
-            } else {
-                paymentChart.innerHTML = Object.entries(paymentTotals)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([method, amount]) => {
-                        const percent = (amount / totals.expenses) * 100;
-                        return `
-                            <div class="chart-item">
-                                <div class="chart-label">
-                                    <span>${method}</span>
-                                    <span>฿${amount.toLocaleString()}</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="chart-bar-fill" style="width: ${percent}%">${percent.toFixed(1)}%</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-            }
-        }
-
-        // Show tab
-        function showTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            
-            event.target.classList.add('active');
-            document.getElementById(tab + 'Tab').style.display = 'block';
-        }
-
-        // Open add modal
-        function openAddModal() {
-            document.getElementById('addModal').classList.add('active');
-            document.getElementById('transactionAmount').value = '';
-            document.getElementById('transactionNote').value = '';
-            setTodayDate();
-        }
-
-        // Close add modal
-        function closeAddModal() {
-            document.getElementById('addModal').classList.remove('active');
-        }
-
-        // Save transaction
-        function saveTransaction() {
-            const type = document.getElementById('transactionType').value;
-            const amount = parseFloat(document.getElementById('transactionAmount').value);
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const date = document.getElementById('transactionDate').value;
-            const note = document.getElementById('transactionNote').value;
-            
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
-                return;
-            }
-            
-            const transaction = {
-                id: Date.now(),
-                type,
-                amount,
-                category: selectedCategory,
-                paymentMethod,
-                date,
-                note
-            };
-            
-            transactions.push(transaction);
-            saveData();
-            render();
-            closeAddModal();
-        }
-
-        // Delete transaction
-        function deleteTransaction(id) {
-            if (confirm('Delete this transaction?')) {
-                transactions = transactions.filter(t => t.id !== id);
-                saveData();
-                render();
-            }
-        }
-
-        // Save budget
-        function saveBudget() {
-            const newBudget = parseFloat(document.getElementById('budgetInput').value);
-            if (newBudget && newBudget > 0) {
-                budget = newBudget;
-                saveData();
-                render();
-                alert('Budget saved!');
-            }
-        }
-
-        // Initialize app
-        init();
-    </script>
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
