@@ -167,10 +167,7 @@ input, select {
 const { useState, useEffect } = React;
 
 function App() {
-  function openMenu(page) {
-  setMenuPage(page);
-  setDrawerOpen(false);
-  }
+
   const [tab, setTab] = useState("tx");
   const [showAdd, setShowAdd] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -201,11 +198,16 @@ function App() {
 const [menuPage, setMenuPage] = useState(null);
 // menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
 //            | "budget" | "period" | "category" | "payment" | "about"
-
+  
   useEffect(() => {
     localStorage.setItem("txns", JSON.stringify(txns));
     localStorage.setItem("settings", JSON.stringify(settings));
   }, [txns, settings]);
+
+    function openMenu(page) {
+  setMenuPage(page);
+  setDrawerOpen(false);
+  }
 
   function groupedTxns() {
     const map = {};
