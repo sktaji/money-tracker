@@ -166,6 +166,10 @@ input, select {
 <script type="text/babel">
 const { useState, useEffect } = React;
 
+function MenuItem({label, onClick}) {
+  return <div className="menu-item" onClick={onClick}>{label}</div>;
+}
+
 function App() {
 
   const [tab, setTab] = useState("tx");
@@ -195,18 +199,18 @@ function App() {
   );
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-const [menuPage, setMenuPage] = useState(null);
-// menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
-//            | "budget" | "period" | "category" | "payment" | "about"
+  const [menuPage, setMenuPage] = useState(null);
+  // menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
+  //            | "budget" | "period" | "category" | "payment" | "about"
   
   useEffect(() => {
     localStorage.setItem("txns", JSON.stringify(txns));
     localStorage.setItem("settings", JSON.stringify(settings));
   }, [txns, settings]);
 
-    function openMenu(page) {
-  setMenuPage(page);
-  setDrawerOpen(false);
+  function openMenu(page) {
+    setMenuPage(page);
+    setDrawerOpen(false);
   }
 
   function groupedTxns() {
@@ -240,28 +244,28 @@ const [menuPage, setMenuPage] = useState(null);
       </header>
 
       {drawerOpen && (
-  <div className="overlay" onClick={() => setDrawerOpen(false)}>
-    <div className="drawer" onClick={e => e.stopPropagation()}>
-      <h3>Money Mgmt</h3>
+        <div className="overlay" onClick={() => setDrawerOpen(false)}>
+          <div className="drawer" onClick={e => e.stopPropagation()}>
+            <h3>Money Mgmt</h3>
 
-      <MenuItem label="📊 Budget Ratio" onClick={() => openMenu("budgetRatio")} />
-      <MenuItem label="💰 Budget (Total)" onClick={() => openMenu("budgetTotal")} />
-      <MenuItem label="📈 Usage (Total)" onClick={() => openMenu("usageTotal")} />
+            <MenuItem label="📊 Budget Ratio" onClick={() => openMenu("budgetRatio")} />
+            <MenuItem label="💰 Budget (Total)" onClick={() => openMenu("budgetTotal")} />
+            <MenuItem label="📈 Usage (Total)" onClick={() => openMenu("usageTotal")} />
 
-      <hr />
+            <hr />
 
-      <MenuItem label="📋 Budget" onClick={() => openMenu("budget")} />
-      <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
-      <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
-      <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
+            <MenuItem label="📋 Budget" onClick={() => openMenu("budget")} />
+            <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
+            <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
+            <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
 
-      <hr />
+            <hr />
 
-      <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
-      <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
-    </div>
-  </div>
-)}
+            <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
+            <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
+          </div>
+        </div>
+      )}
 
       <main>
         {tab==="tx" && Object.entries(groupedTxns()).map(([d,list])=>(
@@ -322,138 +326,139 @@ const [menuPage, setMenuPage] = useState(null);
       {showAdd && <AddTxn settings={settings} onSave={t=>{setTxns([t,...txns]);setShowAdd(false);}} onClose={()=>setShowAdd(false)} />}
 
       {showSettings && <Settings settings={settings} setSettings={setSettings} onClose={()=>setShowSettings(false)} />}
+
+      {/* menuPage modals — moved inside App so they can access settings/setSettings */}
+      {menuPage === "period" && (
+        <div className="sheet">
+          <h3>Period Settings</h3>
+
+          <label>Cycle Name</label>
+          <input value={settings.cycleName}
+            onChange={e => setSettings({...settings, cycleName: e.target.value})} />
+
+          <label>Start Day</label>
+          <input type="number" value={settings.cycleStart}
+            onChange={e => setSettings({...settings, cycleStart: +e.target.value})} />
+
+          <label>End Day</label>
+          <input type="number" value={settings.cycleEnd}
+            onChange={e => setSettings({...settings, cycleEnd: +e.target.value})} />
+
+          <button onClick={() => setMenuPage(null)}>Back</button>
+        </div>
+      )}
+
+      {menuPage === "category" && (
+        <div className="overlay">
+          <div className="sheet">
+            <h3>Category Settings</h3>
+
+            {settings.categories.map((cat, idx) => (
+              <div key={idx} style={{ marginBottom: 12 }}>
+                <input
+                  value={cat.name}
+                  placeholder="Category name"
+                  onChange={e => {
+                    const copy = [...settings.categories];
+                    copy[idx].name = e.target.value;
+                    setSettings({ ...settings, categories: copy });
+                  }}
+                />
+
+                <input
+                  type="number"
+                  placeholder="Budget (THB)"
+                  value={cat.budget}
+                  onChange={e => {
+                    const copy = [...settings.categories];
+                    copy[idx].budget = Number(e.target.value);
+                    setSettings({ ...settings, categories: copy });
+                  }}
+                />
+
+                <button
+                  style={{ background: "#e53935", color: "#fff" }}
+                  onClick={() => {
+                    if (!confirm("Delete this category?")) return;
+                    setSettings({
+                      ...settings,
+                      categories: settings.categories.filter((_, i) => i !== idx)
+                    });
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={() =>
+                setSettings({
+                  ...settings,
+                  categories: [
+                    ...settings.categories,
+                    { name: "🆕 New Category", budget: 0 }
+                  ]
+                })
+              }
+            >
+              + Add Category
+            </button>
+
+            <button onClick={() => setMenuPage(null)}>Back</button>
+          </div>
+        </div>
+      )}
+  
+      {menuPage === "payment" && (
+        <div className="overlay">
+          <div className="sheet">
+            <h3>Payment Methods</h3>
+
+            {settings.payments.map((p, idx) => (
+              <div key={idx} style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={p}
+                  onChange={e => {
+                    const copy = [...settings.payments];
+                    copy[idx] = e.target.value;
+                    setSettings({ ...settings, payments: copy });
+                  }}
+                />
+
+                <button
+                  style={{ background: "#e53935", color: "#fff" }}
+                  onClick={() => {
+                    if (!confirm("Delete this payment method?")) return;
+                    setSettings({
+                      ...settings,
+                      payments: settings.payments.filter((_, i) => i !== idx)
+                    });
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={() =>
+                setSettings({
+                  ...settings,
+                  payments: [...settings.payments, "🆕 New Method"]
+                })
+              }
+            >
+              + Add Payment Method
+            </button>
+
+            <button onClick={() => setMenuPage(null)}>Back</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
-{menuPage === "period" && (
-  <div className="sheet">
-    <h3>Period Settings</h3>
-
-    <label>Cycle Name</label>
-    <input value={settings.cycleName}
-      onChange={e => setSettings({...settings, cycleName: e.target.value})} />
-
-    <label>Start Day</label>
-    <input type="number" value={settings.cycleStart}
-      onChange={e => setSettings({...settings, cycleStart: +e.target.value})} />
-
-    <label>End Day</label>
-    <input type="number" value={settings.cycleEnd}
-      onChange={e => setSettings({...settings, cycleEnd: +e.target.value})} />
-
-    <button onClick={() => setMenuPage(null)}>Back</button>
-  </div>
-)}
-
-  {menuPage === "category" && (
-  <div className="overlay">
-    <div className="sheet">
-      <h3>Category Settings</h3>
-
-      {settings.categories.map((cat, idx) => (
-        <div key={idx} style={{ marginBottom: 12 }}>
-          <input
-            value={cat.name}
-            placeholder="Category name"
-            onChange={e => {
-              const copy = [...settings.categories];
-              copy[idx].name = e.target.value;
-              setSettings({ ...settings, categories: copy });
-            }}
-          />
-
-          <input
-            type="number"
-            placeholder="Budget (THB)"
-            value={cat.budget}
-            onChange={e => {
-              const copy = [...settings.categories];
-              copy[idx].budget = Number(e.target.value);
-              setSettings({ ...settings, categories: copy });
-            }}
-          />
-
-          <button
-            style={{ background: "#e53935", color: "#fff" }}
-            onClick={() => {
-              if (!confirm("Delete this category?")) return;
-              setSettings({
-                ...settings,
-                categories: settings.categories.filter((_, i) => i !== idx)
-              });
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      ))}
-
-      <button
-        onClick={() =>
-          setSettings({
-            ...settings,
-            categories: [
-              ...settings.categories,
-              { name: "🆕 New Category", budget: 0 }
-            ]
-          })
-        }
-      >
-        + Add Category
-      </button>
-
-      <button onClick={() => setMenuPage(null)}>Back</button>
-    </div>
-  </div>
-)}
-  
-  {menuPage === "payment" && (
-  <div className="overlay">
-    <div className="sheet">
-      <h3>Payment Methods</h3>
-
-      {settings.payments.map((p, idx) => (
-        <div key={idx} style={{ display: "flex", gap: 8 }}>
-          <input
-            value={p}
-            onChange={e => {
-              const copy = [...settings.payments];
-              copy[idx] = e.target.value;
-              setSettings({ ...settings, payments: copy });
-            }}
-          />
-
-          <button
-            style={{ background: "#e53935", color: "#fff" }}
-            onClick={() => {
-              if (!confirm("Delete this payment method?")) return;
-              setSettings({
-                ...settings,
-                payments: settings.payments.filter((_, i) => i !== idx)
-              });
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-
-      <button
-        onClick={() =>
-          setSettings({
-            ...settings,
-            payments: [...settings.payments, "🆕 New Method"]
-          })
-        }
-      >
-        + Add Payment Method
-      </button>
-
-      <button onClick={() => setMenuPage(null)}>Back</button>
-    </div>
-  </div>
-)}
-  
 
 function AddTxn({settings,onSave,onClose}) {
   const [data,setData]=useState({
