@@ -331,24 +331,40 @@ function App() {
 
       {/* menuPage modals — moved inside App so they can access settings/setSettings */}
       {menuPage === "period" && (
+      <div className="overlay">
         <div className="sheet">
           <h3>Period Settings</h3>
-
+          
           <label>Cycle Name</label>
-          <input value={settings.cycleName}
-            onChange={e => setSettings({...settings, cycleName: e.target.value})} />
-
+          <input
+            value={settings.cycleName}
+            onChange={e =>
+              setSettings({ ...settings, cycleName: e.target.value })
+            }
+            />
+          
           <label>Start Day</label>
-          <input type="number" value={settings.cycleStart}
-            onChange={e => setSettings({...settings, cycleStart: +e.target.value})} />
-
+          <input
+            type="number"
+            value={settings.cycleStart}
+            onChange={e =>
+              setSettings({ ...settings, cycleStart: +e.target.value })
+            }
+            />
+          
           <label>End Day</label>
-          <input type="number" value={settings.cycleEnd}
-            onChange={e => setSettings({...settings, cycleEnd: +e.target.value})} />
-
+          <input
+            type="number"
+            value={settings.cycleEnd}
+            onChange={e =>
+              setSettings({ ...settings, cycleEnd: +e.target.value })
+            }
+            />
+          
           <button onClick={() => setMenuPage(null)}>Back</button>
         </div>
-      )}
+      </div>
+    )}
 
       {menuPage === "category" && (
         <div className="overlay">
