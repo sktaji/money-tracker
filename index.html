@@ -170,11 +170,6 @@ function MenuItem({label, onClick}) {
   
   return <div className="menu-item" onClick={onClick}>{label}</div>;
 }
-  function openMenu(page) {
-    setMenuPage(page);
-    setDrawerOpen(false);
-  }
-
 
 function App() {
 
@@ -208,6 +203,11 @@ function App() {
   const [menuPage, setMenuPage] = useState(null);
   // menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
   //            | "budget" | "period" | "category" | "payment" | "about"
+
+  function openMenu(page) {
+  setMenuPage(page);
+  setDrawerOpen(false);
+  }
   
   useEffect(() => {
     localStorage.setItem("txns", JSON.stringify(txns));
@@ -223,6 +223,7 @@ function App() {
         map[t.date].push(t);
       });
     return map;
+    
   }
 
   function totalBy(field) {
