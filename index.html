@@ -167,8 +167,14 @@ input, select {
 const { useState, useEffect } = React;
 
 function MenuItem({label, onClick}) {
+  
   return <div className="menu-item" onClick={onClick}>{label}</div>;
 }
+  function openMenu(page) {
+    setMenuPage(page);
+    setDrawerOpen(false);
+  }
+
 
 function App() {
 
