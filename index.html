@@ -208,11 +208,6 @@ function App() {
     localStorage.setItem("settings", JSON.stringify(settings));
   }, [txns, settings]);
 
-  function openMenu(page) {
-    setMenuPage(page);
-    setDrawerOpen(false);
-  }
-
   function groupedTxns() {
     const map = {};
     txns
