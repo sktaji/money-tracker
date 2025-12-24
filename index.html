@@ -126,6 +126,7 @@ input, select {
   padding: 10px;
   margin: 6px 0 12px;
   font-size: 16px;
+
 }
 
 .bar {
@@ -155,6 +156,33 @@ input, select {
   padding: 12px 0;
   font-size: 15px;
   border-bottom: 1px solid #eee;
+}
+
+/* ===== Category & Payment editor layout ===== */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-name {
+  flex: 1;
+  min-width: 0; /* IMPORTANT for iPhone Safari */
+}
+
+.input-budget {
+  max-width: 160px;
+}
+
+.btn-delete {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  white-space: nowrap;
 }
   
 </style>
@@ -264,7 +292,7 @@ function App() {
             <hr />
 
         {/* <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
-            <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} /> -->  */}
+            <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} /> */}
           </div>
         </div>
       )}
@@ -372,42 +400,45 @@ function App() {
             <h3>Category Settings</h3>
 
             {settings.categories.map((cat, idx) => (
-              <div key={idx} style={{ marginBottom: 12 }}>
-                <input
-                  value={cat.name}
-                  placeholder="Category name"
-                  onChange={e => {
-                    const copy = [...settings.categories];
-                    copy[idx].name = e.target.value;
-                    setSettings({ ...settings, categories: copy });
-                  }}
-                />
+                <div key={idx} style={{ marginBottom: 16 }}>
+                    {/* Name + Delete in one row */}
+                    <div className="row">
+                        <input className="input-name"
+                        value={cat.name}
+                        placeholder="Category"
+                        onChange={e => {
+                            const copy = [...settings.categories];
+                            copy[idx].name = e.target.value;
+                            setSettings({ ...settings, categories: copy });
+                        }}
+                        />
+                        
+                        <button className="btn-delete"
+                        onClick={() => {
+                            if (!confirm("Delete this category?")) return;
+                            setSettings({
+                                ...settings,categories: settings.categories.filter((_, i) => i !== idx)
+                            });
+                        }}
+                        >
+                        ✕
+                        </button>
+                        </div>
 
-                <input
-                  type="number"
-                  placeholder="Budget (THB)"
-                  value={cat.budget}
-                  onChange={e => {
-                    const copy = [...settings.categories];
-                    copy[idx].budget = Number(e.target.value);
-                    setSettings({ ...settings, categories: copy });
-                  }}
-                />
-
-                <button
-                  style={{ background: "#e53935", color: "#fff" }}
-                  onClick={() => {
-                    if (!confirm("Delete this category?")) return;
-                    setSettings({
-                      ...settings,
-                      categories: settings.categories.filter((_, i) => i !== idx)
-                    });
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+    {/* Budget input (smaller width) */}
+    <input
+      className="input-budget"
+      type="number"
+      placeholder="Budget (฿)"
+      value={cat.budget}
+      onChange={e => {
+        const copy = [...settings.categories];
+        copy[idx].budget = Number(e.target.value);
+        setSettings({ ...settings, categories: copy });
+      }}
+    />
+  </div>
+))}
 
             <button
               onClick={() =>
