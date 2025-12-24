@@ -202,7 +202,7 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [menuPage, setMenuPage] = useState(null);
   // menuPage: null | "budgetRatio" | "budgetTotal" | "usageTotal"
-  //            | "budget" | "period" | "category" | "payment" | "about"
+  // | "budget" | "period" | "category" | "payment" | "about"
 
   function openMenu(page) {
   setMenuPage(page);
@@ -260,11 +260,11 @@ function App() {
             <MenuItem label="🗓 Period" onClick={() => openMenu("period")} />
             <MenuItem label="🏷 Category" onClick={() => openMenu("category")} />
             <MenuItem label="💳 Payment Method" onClick={() => openMenu("payment")} />
-
+                
             <hr />
 
-            <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
-            <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} />
+        {/* <MenuItem label="ℹ️ About" onClick={() => openMenu("about")} />
+            <MenuItem label="💬 Feedback" onClick={() => openMenu("feedback")} /> -->  */}
           </div>
         </div>
       )}
